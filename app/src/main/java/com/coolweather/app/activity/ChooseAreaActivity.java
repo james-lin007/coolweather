@@ -20,6 +20,7 @@ import com.coolweather.app.db.CoolWeatherDB;
 import com.coolweather.app.model.City;
 import com.coolweather.app.model.County;
 import com.coolweather.app.model.Province;
+import com.coolweather.app.util.HttpCallbackListener;
 import com.coolweather.app.util.HttpUtil;
 import com.coolweather.app.util.Utility;
 
@@ -47,11 +48,18 @@ public class ChooseAreaActivity extends Activity{
     private Province selectedProvince;
     private City selectedCity;
     private int currentLevel;
+    /**
+     * 是否从WeatherActivity中跳转过来。
+     */
+    private boolean isFromWeatherActivity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if(prefs.getBoolean("city_selected", false)){
+        // 已经选择了城市且不是从 WeatherActivity 跳转过来，才会直接跳转到 WeatherActivity
+        if(prefs.getBoolean("city_selected", false) && !isFromWeatherActivity){
             Intent intent = new Intent(this, WeatherActivity.class);
             startActivity(intent);
             finish();
@@ -155,7 +163,7 @@ public class ChooseAreaActivity extends Activity{
             address = "http://www.weather.com.cn/data/list3/city.xml";
         }
         showProgressDialog();
-        HttpUtil.sendHttpRequest(address, new HttpUtil.HttpCallbackListener() {
+        HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
             @Override                     // 实现在HttpUtil类中定义的 HttpCallbackListener 接口！！
             public void onFinish(String response) {
                 boolean result = false;
@@ -232,6 +240,10 @@ public class ChooseAreaActivity extends Activity{
             queryProvinces();
         }
         else{
+            if(isFromWeatherActivity){
+                Intent intent = new Intent(this, WeatherActivity.class);
+                startActivity(intent);
+            }
             finish();
         }
     }

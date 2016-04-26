@@ -45,9 +45,4 @@ public class HttpUtil {
             }
         }).start();
     }
-    public interface HttpCallbackListener{
-        void onFinish(String response);
-        void onError(Exception e);
-    }   // 具体实现下放到调用时通过匿名内部类！！
-
 }
